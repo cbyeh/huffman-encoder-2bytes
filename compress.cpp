@@ -43,12 +43,21 @@ int main(int argc, char** argv) {
     // Proceed to read bytes, and count number of characters.
     BitInputStream bitIn = BitInputStream(input);
     while (!input.eof()) {
-        nextBytes = bitIn.readShort();
-        if (input.eof()) {
-            break;
+        unsigned char byte1 = bitIn.readByte();
+        if (!input.eof()) {
+            numCharacters++;
+        }
+        unsigned char byte2 = bitIn.readByte();
+        if (!input.eof()) {
+            numCharacters++;
+        }
+        // Null character read:
+        if (byte1 == 255 || byte2 == 255) {
+            nextBytes = byte1;
+        } else {
+            nextBytes = (((unsigned short) byte2) << 8) | byte1;
         }
         freqs[nextBytes]++;
-        numCharacters++;
     }
     // Get our number of unique characters */
     for (auto freq : freqs) {
@@ -67,9 +76,19 @@ int main(int argc, char** argv) {
     if (numUniqueChars > 1) {
         input.clear();
         input.seekg(0);
-        for (int i = 0; i < numCharacters; i++) {
-            nextBytes = bitIn.readShort();
-            ht->encode(nextBytes, bitOut);
+        int counter = 0;
+        while (true) {
+            unsigned char byte1 = bitIn.readByte();
+            unsigned char byte2 = bitIn.readByte();
+            if (byte1 == 255 || byte2 == 255) {
+                nextBytes = byte1;
+            } else {
+                nextBytes = (((unsigned short) byte2) << 8) | byte1;
+            }
+            if (counter < (numCharacters / 2) + (numCharacters % 2 != 0)) {
+                ht->encode(nextBytes, bitOut);
+            } else break;
+            counter++;
         }
     }
     // Padding for last.

@@ -41,9 +41,9 @@ int main(int argc, char** argv) {
     unsigned short nextBytes;
     // Single character cases.
     if (numUniqueChars == 1) {
-        nextBytes = bitIn.readShort();
+        unsigned char nextByte = bitIn.readByte();
         for (int i = 0; i < numCharacters; i++) {
-            output << nextBytes;
+            output << nextByte;
         }
         return EXIT_SUCCESS;
     }
@@ -51,11 +51,19 @@ int main(int argc, char** argv) {
     HCTree* ht = new HCTree();
     ht->buildFromEncoding(bitIn);
     // Output to our file. Deconstruct and return success.
-    for (int i = 0; i < numCharacters; i++) {
+    int count = 0;
+    while (true) {
         nextBytes = ht->decode(bitIn);
         unsigned char byte1 = nextBytes;
+        count++;
+        if (count <= numCharacters) {
+            output << byte1;
+        } else break;
         unsigned char byte2 = nextBytes >> 8;
-        output << byte1 << byte2;
+        count++;
+        if (count <= numCharacters) {
+            output << byte2;
+        } else break;
     }
     delete ht;
     return EXIT_SUCCESS;
