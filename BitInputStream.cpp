@@ -32,13 +32,27 @@ int BitInputStream::readBit() {
  * @return the int given (32) bits
  */
 unsigned int BitInputStream::readInt() {
-    unsigned int numCharacters = 0;
+    unsigned int integer = 0;
     int bit;
     for (int i = 0; i < sizeof(int) * CHAR_BIT; i++) {
         bit = readBit();
-        numCharacters |= bit << i;
+        integer |= bit << i;
     }
-    return numCharacters;
+    return integer;
+}
+
+/** Read the amount of characters or unique characters
+ * from our bit buffer.
+ * @return the short given (16) bits
+ */
+twoBytes BitInputStream::readShort() {
+    unsigned short shorty = 0;
+    int bit;
+    for (int i = 0; i < sizeof(short) * CHAR_BIT; i++) {
+        bit = readBit();
+        shorty |= bit << i;
+    }
+    return shorty;
 }
 
 /** Read the next byte from the bit buffer.

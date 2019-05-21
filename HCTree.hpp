@@ -43,16 +43,16 @@ class HCTree {
 private:
     HCNode* root;
     vector<HCNode*> leaves;
-    unordered_map<byte, string> codes;
+    unordered_map<twoBytes, string> codes;
     const int CHAR_TO_INT = 48;
 
     void deleteAll(HCNode* start);
 
 public:
-    const static int TABLE_SIZE = 256;
+    const static int TABLE_SIZE = 65536;
 
     explicit HCTree() : root(nullptr) {
-        leaves = vector<HCNode*>(256, (HCNode*) nullptr);
+        leaves = vector<HCNode*>(TABLE_SIZE, (HCNode*) nullptr);
     }
 
     /** Destructor */
@@ -65,7 +65,7 @@ public:
      * and leaves[i] points to the leaf node containing byte i.
      * @param freqs vector of ascii values and their frequency.
      */
-    void build(const vector<int>& freqs);
+    void build(unordered_map<twoBytes, int> freqs);
 
     /** Use our encoding to build a Huffman coding trie.
      * PRECONDITION: a file was properly encoded.
@@ -96,7 +96,7 @@ public:
      *  @param symbol 8 bits to be encoded.
      *  @param out our output stream.
      */
-    void encode(byte symbol, BitOutputStream& out) const;
+    void encode(twoBytes symbol, BitOutputStream& out) const;
 
     /** Make sure we get the last byte in.
      * @param out our input stream for bits.
@@ -109,7 +109,7 @@ public:
      *  @param in our input stream for bits.
      *  @return symbol of the 8 bits read.
      */
-    int decode(BitInputStream& in) const;
+    unsigned short decode(BitInputStream& in) const;
 
 };
 

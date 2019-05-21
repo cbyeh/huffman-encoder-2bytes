@@ -14,12 +14,12 @@
  * and leaves[i] points to the leaf node containing byte i.
  * @param freqs vector of ascii values and their frequency.
  */
-void HCTree::build(const vector<int>& freqs) {
+void HCTree::build(const unordered_map<twoBytes, int> freqs) {
     // Create our priority queue as a min-heap and add our freqs to it.
     priority_queue<HCNode*, vector<HCNode*>, HCNodePtrComp> q;
-    for (int i = 0; i < freqs.size(); i++) {
-        if (freqs[i] != 0) {
-            auto node = new HCNode(freqs[i], i);
+    for (auto freq : freqs) {
+        if (freq.second != 0) {
+            auto node = new HCNode(freq.second, freq.first);
             q.push(node);
         }
     }
@@ -75,7 +75,6 @@ void HCTree::build(const vector<int>& freqs) {
  * @param in our input stream for bits.
  */
 void HCTree::buildFromEncoding(BitInputStream& in) {
-    int charsEncountered = 0;
     int bit;
     bit = in.readBit();
     root = new HCNode(bit, '\0');
@@ -104,7 +103,7 @@ void HCTree::buildFromEncoding(BitInputStream& in) {
                 curr = curr->c1;
             }
         } else {
-            byte symbol = in.readByte();
+            twoBytes symbol = in.readShort();
             HCNode* newNode = new HCNode(bit, symbol);
             newNode->p = curr;
             if (curr->c0 == nullptr) {
@@ -130,7 +129,7 @@ void HCTree::writeHeader(BitOutputStream& out,
     // One character case.
     if (numUniqueChars == 1) {
         out.writeBit(1);
-        out.writeByte(root->symbol);
+        out.writeShort(root->symbol);
     } else {
         out.writeBit(0);
         writeHeaderHelper(out, root);
@@ -148,7 +147,7 @@ void HCTree::writeHeaderHelper(BitOutputStream& out, HCNode* parent) const {
         // Flag we found a leaf.
         out.writeBit(1);
         // Encode the symbol at the leaf in 8 bits.
-        out.writeByte(parent->symbol);
+        out.writeShort(parent->symbol);
     } else {
         // Flag we are at a non-leaf.
         out.writeBit(0);
@@ -164,7 +163,7 @@ void HCTree::writeHeaderHelper(BitOutputStream& out, HCNode* parent) const {
  *  @param symbol 8 bits to be encoded.
  *  @param out our output stream.
  */
-void HCTree::encode(byte symbol, BitOutputStream& out) const {
+void HCTree::encode(twoBytes symbol, BitOutputStream& out) const {
     string code = codes.at(symbol);
     for (char& bit : code) {
         out.writeBit((unsigned int) (bit - CHAR_TO_INT));
@@ -184,7 +183,7 @@ void HCTree::pad(BitOutputStream& out) const {
  *  @param in our input stream for bits.
  *  @return symbol of the 8 bits read.
  */
-int HCTree::decode(BitInputStream& in) const {
+unsigned short HCTree::decode(BitInputStream& in) const {
     int nextBit;
     if (root == nullptr) { // Empty file case.
         return 0;

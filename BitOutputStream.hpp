@@ -37,6 +37,11 @@ public:
      */
     void writeInt(unsigned int num);
 
+    /** Write a (2) byte int in bits
+     * @param symbol short to write.
+     */
+    void writeShort(twoBytes symbol);
+
     /** Write a (8) bit symbol in bits
      * @param symbol character or ascii value to write.
      */

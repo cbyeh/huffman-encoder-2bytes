@@ -42,6 +42,17 @@ void BitOutputStream::writeInt(unsigned int num) {
     }
 }
 
+/** Write a (2) byte int in bits
+ * @param symbol short to write.
+ */
+void BitOutputStream::writeShort(twoBytes symbol) {
+    unsigned int bit;
+    for (int i = 0; i < sizeof(short) * CHAR_BIT; i++) {
+        bit = (symbol >> i) & 1;
+        writeBit(bit);
+    }
+}
+
 /** Write a (8) bit symbol in bits
  * @param symbol character or ascii value to write.
  */

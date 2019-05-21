@@ -10,6 +10,7 @@
 #include <iostream>
 
 typedef unsigned char byte;
+typedef unsigned short twoBytes;
 using namespace std;
 
 /**
@@ -25,14 +26,14 @@ class HCNode {
 
 public:
     int count;
-    byte symbol;
+    twoBytes symbol;
     HCNode* c0;
     HCNode* c1;
     HCNode* p;
 
     /** Constructor */
     HCNode(int count,
-      byte symbol,
+      twoBytes symbol,
       HCNode* c0 = nullptr,
       HCNode* c1 = nullptr,
       HCNode* p = nullptr)

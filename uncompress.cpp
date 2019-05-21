@@ -38,12 +38,12 @@ int main(int argc, char** argv) {
     BitInputStream bitIn = BitInputStream(input);
     unsigned int numCharacters = bitIn.readInt();
     unsigned int numUniqueChars = bitIn.readBit();
-    unsigned char nextByte;
+    unsigned short nextBytes;
     // Single character cases.
     if (numUniqueChars == 1) {
-        nextByte = (unsigned char) bitIn.readByte();
+        nextBytes = bitIn.readShort();
         for (int i = 0; i < numCharacters; i++) {
-            output << nextByte;
+            output << nextBytes;
         }
         return EXIT_SUCCESS;
     }
@@ -52,8 +52,10 @@ int main(int argc, char** argv) {
     ht->buildFromEncoding(bitIn);
     // Output to our file. Deconstruct and return success.
     for (int i = 0; i < numCharacters; i++) {
-        nextByte = (unsigned char) ht->decode(bitIn);
-        output << nextByte;
+        nextBytes = ht->decode(bitIn);
+        unsigned char byte1 = nextBytes;
+        unsigned char byte2 = nextBytes >> 8;
+        output << byte1 << byte2;
     }
     delete ht;
     return EXIT_SUCCESS;

@@ -28,8 +28,7 @@ int main(int argc, char** argv) {
     ofstream output;
     input.open(INFILE, ios_base::binary);
     output.open(OUTFILE, ios_base::trunc);
-    unsigned char nextChar;
-    int nextByte;
+    unsigned short nextBytes;
     // If file is empty, don't write anything.
     input.seekg(0, ios::end);
     if (input.tellg() == 0) {
@@ -38,24 +37,29 @@ int main(int argc, char** argv) {
     input.clear();
     input.seekg(0);
     // Initiate all vector to 0.
-    vector<int> ascii_count(HCTree::TABLE_SIZE, 0);
+    unordered_map<twoBytes, int> freqs;
     unsigned int numCharacters = 0;
     unsigned int numUniqueChars = 0;
     // Proceed to read bytes, and count number of characters.
-    while ((nextByte = input.get()) != EOF) {
-        ascii_count[nextByte]++;
+    BitInputStream bitIn = BitInputStream(input);
+    while (!input.eof()) {
+        nextBytes = bitIn.readShort();
+        if (input.eof()) {
+            break;
+        }
+        freqs[nextBytes]++;
         numCharacters++;
     }
     // Get our number of unique characters */
-    for (int count : ascii_count) {
-        if (count > 0) {
+    for (auto freq : freqs) {
+        if (freq.second > 0) {
             numUniqueChars++;
         }
     }
     // Encode our tree.
     BitOutputStream bitOut = BitOutputStream(output);
     HCTree* ht = new HCTree();
-    ht->build(ascii_count);
+    ht->build(freqs);
     // Write our header: count and pre-order traversal of tree.
     ht->writeHeader(bitOut, numCharacters, numUniqueChars);
 //    cout << "Header size is: " << bitOut.getBytes() << " bytes" << endl;
@@ -63,9 +67,9 @@ int main(int argc, char** argv) {
     if (numUniqueChars > 1) {
         input.clear();
         input.seekg(0);
-        while ((nextByte = input.get()) != EOF) {
-            nextChar = (unsigned char) nextByte;
-            ht->encode(nextChar, bitOut);
+        for (int i = 0; i < numCharacters; i++) {
+            nextBytes = bitIn.readShort();
+            ht->encode(nextBytes, bitOut);
         }
     }
     // Padding for last.

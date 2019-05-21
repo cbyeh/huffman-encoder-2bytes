@@ -35,6 +35,12 @@ public:
      */
     unsigned int readInt();
 
+    /** Read the amount of characters or unique characters
+     * from our bit buffer.
+     * @return the short given (16) bits
+     */
+    twoBytes readShort();
+
     /** Read the next byte from the bit buffer.
      * @return the character given (8) bits.
      */
