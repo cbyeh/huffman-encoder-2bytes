@@ -18,7 +18,7 @@ using namespace std;
  * @count How frequent the symbol occurs.
  * @symbol Byte in the file we're keeping track of.
  * @c0 Pointer to '0' child.
- * @c1 Pointer to '0' child.
+ * @c1 Pointer to '1' child.
  * @p Pointer to parent.
  */
 class HCNode {
